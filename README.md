@@ -13,3 +13,5 @@ A growing list of development task requests is being generated. These task reque
 Development Task Requests:
 
 [Land Boundary Mode Task Request](https://steemit.com/utopian-io/@vanarchist/vanlife-spot-finder-land-boundary-mode-task-request)
+
+[Weather Overlay Task Request](https://steemit.com/utopian-io/@vanarchist/vanlife-spot-finder-weather-overlay-task-request)
