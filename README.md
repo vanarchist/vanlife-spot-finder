@@ -15,3 +15,13 @@ Development Task Requests:
 [Land Boundary Mode Task Request](https://steemit.com/utopian-io/@vanarchist/vanlife-spot-finder-land-boundary-mode-task-request)
 
 [Weather Overlay Task Request](https://steemit.com/utopian-io/@vanarchist/vanlife-spot-finder-weather-overlay-task-request)
+
+## Submission Requirements
+
+### Static Analysis
+If adding or changing an R source file, run lintr on it and ensure there are no violations. You will need to install lintr, see [this page](https://github.com/jimhester/lintr) for instructions. This will ensure a consistent coding standard across the application. Lintr can be run against a source file with the following command:
+
+```
+lintr::lint("file.R")
+```
+
