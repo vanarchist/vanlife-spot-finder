@@ -24,4 +24,12 @@ If adding or changing an R source file, run lintr on it and ensure there are no 
 ```
 lintr::lint("file.R")
 ```
+Note that static analysis is run as part of the test suite in the following section so it doesn't have to be performed manually.
 
+### Unit Tests
+If adding or changing an R source file, modify or add unit tests as appropriate and ensure that all tests pass prior to submission. You will need to install testthat, see [this page](https://github.com/r-lib/testthat) for instructions. The testthat unit tests can be run with the following command from the project root directory:
+
+```
+test_dir('tests')
+
+```
