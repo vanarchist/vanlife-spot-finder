@@ -1,0 +1,15 @@
+Package: vanlife
+Type: Package
+Title: This package includes the Vanlife Spot Finder shiny app and supporting
+    utiliities.
+Version: 0.1.0
+Author: vanarchist
+Maintainer: The package maintainer <v4narchist@gmail.com>
+Description: See https://github.com/vanarchist/vanlife-spot-finder for more
+    information.
+License: GPLv2
+Encoding: UTF-8
+LazyData: true
+Suggests: 
+    testthat
+    lintr
