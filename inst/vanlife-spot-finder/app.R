@@ -22,11 +22,13 @@ ui <- bootstrapPage(
                 selectInput("select", label = "Mode:",
                             choices = list("Reported Spot")),
                 checkboxGroupInput("show_vars", "Data Sources:",
-                                   c("freecampsites.net"), selected = "freecampsites.net"),
+                                   c("freecampsites.net"),
+                                   selected = "freecampsites.net"),
                 selectInput("variable", "Point Of Interest:",
-                            list("Gyms (shower/bathroom)"=c( "Anytime Fitness", ""))),
-                sliderInput("range", "Distance from point of interest (miles)", 1, 40,
-                            value = 10, step = 1)
+                            list("Gyms (shower/bathroom)" =
+                                 c( "Anytime Fitness", ""))),
+                sliderInput("range", "Distance from point of interest (miles)",
+                            1, 40, value = 10, step = 1)
   )
 )
 
