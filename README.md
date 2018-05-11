@@ -1,6 +1,6 @@
 # Vanlife Spot Finder
 
-![Screenshot](https://steemitimages.com/DQmbGxCiQ2kgvwBeFdMu3zCygfSdzoNUPGRBYpqWWCtJf1U/spot_finder_demo_crop.png)
+![Screenshot](https://i.imgur.com/SeV2dgU.jpg)
 
 Vanlife Spot Finder is designed to help people living in vehicles find good free spots to camp. Currently, it is focused on the United States but could eventually support other countries.
 
@@ -30,6 +30,6 @@ Note that static analysis is run as part of the test suite in the following sect
 If adding or changing an R source file, modify or add unit tests as appropriate and ensure that all tests pass prior to submission. You will need to install testthat, see [this page](https://github.com/r-lib/testthat) for instructions. The testthat unit tests can be run with the following command from the project root directory:
 
 ```
-test_dir('tests')
+devtools::test()
 
 ```
