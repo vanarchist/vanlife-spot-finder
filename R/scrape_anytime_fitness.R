@@ -8,6 +8,7 @@
 library(rvest)
 library(ggmap)
 library(DBI)
+library(httr)
 
 # generate anytime fitness URL to scrape from state specification for US only
 generate_url <- function(state_abbreviation) {
@@ -16,4 +17,21 @@ generate_url <- function(state_abbreviation) {
     stop("Invalid state abbreviation")
   }
   paste0("http://www.anytimefitness.com/locations/us/", state_abbreviation)
+}
+
+# scrape data from Anytime Fitness given URL
+# returns string array of locations in format on success:
+# [["City, State", "Street", "Phone", "Status"]]
+scrape_url <- function(url) {
+
+  # Attempt to crawl, use useragent to simulate browser
+  uastring <- paste("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8)",
+                     "AppleWebKit/537.36 (KHTML, like Gecko)",
+                     "Chrome/49.0.2623.112 Safari/537.36", sep = " ")
+  session <- html_session(url, user_agent(uastring))
+
+  # Extract location data
+  table <- session %>%
+    html_nodes("table td") %>%
+    html_text() #text
 }
