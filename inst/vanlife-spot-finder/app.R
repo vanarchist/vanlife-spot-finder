@@ -38,6 +38,10 @@ server <- function(input, output, session) {
   # Load dataframes written by scraping tools
   load("data/data.RData")
 
+  poi_mgr <- point_of_interest()
+  anytime_gyms <- na.omit(get_points_all(
+                  poi_mgr, get_anytime_fitness_type_id()))
+
   # Perform default filtering of campsites within 10 miles of a gym.
   # Convert meters to miles for units
   filtered_campendium <- campendium_data[campendium_data$min_distance
@@ -61,10 +65,11 @@ server <- function(input, output, session) {
 
   # Draw map
   output$map <- renderLeaflet({
+
     leaflet() %>%
       addTiles() %>%  # Add default OpenStreetMap map tiles
-      addCircleMarkers(lng = gym_locations$lon, lat = gym_locations$lat,
-                       popup = gym_locations$address, color = "blue",
+      addCircleMarkers(lng = anytime_gyms$lon, lat = anytime_gyms$lat,
+                       popup = anytime_gyms$title, color = "blue",
                        radius = 6, group = "gyms") %>%
       addCircleMarkers(lng = filtered_campendium$longitude,
                        lat = filtered_campendium$latitude,
