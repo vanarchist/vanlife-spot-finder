@@ -8,6 +8,7 @@
 
 library(shiny)
 library(leaflet)
+library(vanlife)
 
 # UI definition
 ui <- bootstrapPage(
