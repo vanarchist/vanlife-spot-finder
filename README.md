@@ -31,5 +31,11 @@ If adding or changing an R source file, modify or add unit tests as appropriate 
 
 ```
 devtools::test()
+```
 
+## Installation
+If you'd like to download the app to run it locally, it can be installed with the following command (requires devtools):
+
+```
+devtools::install_github("vanarchist/vanlife-spot-finder")
 ```
