@@ -20,4 +20,6 @@ Imports:
     geosphere,
     matrixStats,
     rvest,
-    jsonlite
+    jsonlite,
+    ggmap,
+    httr
