@@ -1,8 +1,8 @@
 #
 # Vanlife Spot Finder
 #
-# The spot finder currently includes data for the state of Washington.
-# Data sources include freecampsites.net and campendium.com for campsites and
+# The spot finder currently includes data for most of the united states.
+# Data sources include freecampsites.net for campsites and
 # anytimefitness.com for gym locations.
 #
 
@@ -21,9 +21,9 @@ ui <- bootstrapPage(
                 bottom = "auto", width = 330, height = "auto",
                 selectInput("select", label = "Mode:",
                             choices = list("Reported Spot")),
-                checkboxGroupInput("show_vars", "Data Sources:",
-                                   c("freecampsites.net"),
-                                   selected = "freecampsites.net"),
+                checkboxGroupInput("sources", "Data Sources:",
+                                   c("freecampsites.net" = "fc"),
+                                   selected = "fc"),
                 selectInput("variable", "Point Of Interest:",
                             list("Gyms (shower/bathroom)" =
                                  c( "Anytime Fitness", ""))),
@@ -35,32 +35,23 @@ ui <- bootstrapPage(
 # Server logic
 server <- function(input, output, session) {
 
-  # Load dataframes written by scraping tools
-  load("data/data.RData")
-
   poi_mgr <- point_of_interest()
+
   anytime_gyms <- na.omit(get_points_all(
                   poi_mgr, get_anytime_fitness_type_id()))
 
   # Perform default filtering of campsites within 10 miles of a gym.
-  # Convert meters to miles for units
-  filtered_campendium <- campendium_data[campendium_data$min_distance
-                                         <= 10 * 1609, ]
-  filtered_freecampsites <- freecampsites_data[freecampsites_data$min_distance
-                                               <= 10 * 1609, ]
-
-  # Filter campendium sites when user adjusts control
-  f_campendium <- reactive({
-    campendium_data$radius <- input$range * 1609
-    filtered_campendium <- campendium_data[campendium_data$min_distance
-                                           <= input$range, ]
-  })
+  filtered_freecampsites <- get_points_within_distance_by_types(poi_mgr,
+                            10,
+                            anytime_fitness_type_id(),
+                            free_campsite_type_id())
 
   # Filter freecampsites sites when user adjusts control
   f_freecampsites <- reactive({
-    freecampsites_data$radius <- input$range * 1609
-    filtered_freecampsites <- freecampsites_data[
-      freecampsites_data$min_distance <= input$range, ]
+    filtered_freecampsites <- get_points_within_distance_by_types(poi_mgr,
+                              input$range,
+                              anytime_fitness_type_id(),
+                              free_campsite_type_id())
   })
 
   # Draw map
@@ -71,38 +62,24 @@ server <- function(input, output, session) {
       addCircleMarkers(lng = anytime_gyms$lon, lat = anytime_gyms$lat,
                        popup = anytime_gyms$title, color = "blue",
                        radius = 6, group = "gyms") %>%
-      addCircleMarkers(lng = filtered_campendium$longitude,
-                       lat = filtered_campendium$latitude,
-                       popup = filtered_campendium$title, color = "red",
-                       radius = 6, group = "campendium") %>%
       addCircleMarkers(lng = filtered_freecampsites$longitude,
                        lat = filtered_freecampsites$latitude,
-                       popup = filtered_freecampsites$name, color = "red",
+                       popup = filtered_freecampsites$title, color = "red",
                        radius = 6, group = "freecampsites")
-  })
-
-  # Update campendium sites when user adjust control
-  observe({
-    leafletProxy("map", data = f_campendium()) %>%
-      clearGroup("campendium") %>%
-      addCircleMarkers(lng = ~longitude,
-                       lat = ~latitude,
-                       popup = ~title,
-                       color = "red",
-                       radius = 6,
-                       group = "campendium")
   })
 
   # Update freecampsites when user adjusts control
   observe({
-    leafletProxy("map", data = f_freecampsites()) %>%
-      clearGroup("freecampsites") %>%
-      addCircleMarkers(lng = ~longitude,
-                       lat = ~latitude,
-                       popup = ~name,
-                       color = "red",
-                       radius = 6,
-                       group = "freecampsites")
+    proxy <- leafletProxy("map", data = f_freecampsites())
+    proxy %>% clearGroup("freecampsites")
+    if ("fc" %in% input$sources){
+      proxy %>% addCircleMarkers(lng = ~longitude,
+                                 lat = ~latitude,
+                                 popup = ~title,
+                                 color = "red",
+                                 radius = 6,
+                                 group = "freecampsites")
+    }
   })
 }
 
