@@ -13,11 +13,11 @@ LazyData: true
 Suggests: 
     testthat,
     lintr,
-    jsonlite,
-    rvest
 Imports:
     DBI,
     RSQLite,
     rprojroot,
     geosphere,
-    matrixStats
+    matrixStats,
+    rvest,
+    jsonlite
