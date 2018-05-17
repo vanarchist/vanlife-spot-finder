@@ -9,7 +9,7 @@ library(matrixStats)
 # constructor
 point_of_interest <- function(){
   obj <- list()
-  db_path <- paste0(find_root("DESCRIPTION"), "/",
+  db_path <- paste0(rprojroot::find_root("DESCRIPTION"), "/",
                     "inst/vanlife-spot-finder/data/data.db")
   obj$db_con <- dbConnect(RSQLite::SQLite(),
                           dbname = db_path)

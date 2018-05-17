@@ -16,7 +16,7 @@ Suggests:
 Imports:
     DBI,
     RSQLite,
-    rprojroot,
+    rprojroot (>= 1.3-2),
     geosphere,
     matrixStats,
     rvest,
