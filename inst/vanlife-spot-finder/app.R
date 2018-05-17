@@ -39,7 +39,7 @@ server <- function(input, output, session) {
   poi_mgr <- point_of_interest()
 
   anytime_gyms <- na.omit(get_points_all(
-                  poi_mgr, get_anytime_fitness_type_id()))
+                  poi_mgr, anytime_fitness_type_id()))
 
   # Perform default filtering of campsites within 10 miles of a gym.
   filtered_freecampsites <- get_points_within_distance_by_types(poi_mgr,
