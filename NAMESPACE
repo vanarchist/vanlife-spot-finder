@@ -1,1 +1,3 @@
+import(DBI, geosphere, matrixStats)
+
 exportPattern("^[[:alpha:]]+")
