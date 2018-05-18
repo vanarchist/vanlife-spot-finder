@@ -9,10 +9,21 @@ library(matrixStats)
 # constructor
 point_of_interest <- function(){
   obj <- list()
-  db_path <- paste0(rprojroot::find_root("app.R"), "/",
-                    "data/data.db")
+  # get db path depending on if running from package or app
+  # can probably improve this
+  if(basename(getwd()) == "R"){
+    db_path <- paste0(rprojroot::find_root("DESCRIPTION"), "/",
+                      "inst/vanlife-spot-finder/data/data.db")
+  }
+  else{
+    db_path <- paste0(rprojroot::find_root("app.R"), "/",
+                      "data/data.db")
+  }
+
   obj$db_con <- dbConnect(RSQLite::SQLite(),
                           dbname = db_path)
+  # linux only for now, need to have mod_spatialite.so in lib path
+  dbSendQuery(obj$db_con, "SELECT load_extension(\"mod_spatialite.so\")")
   class(obj) <- "point_of_interest"
   obj
 }
