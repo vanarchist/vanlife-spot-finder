@@ -39,3 +39,9 @@ If you'd like to download the app to run it locally, it can be installed with th
 ```
 devtools::install_github("vanarchist/vanlife-spot-finder")
 ```
+
+## Dependencies
+An SQLite extension is required to use Spatialite GIS functions. Currently there is no R package that installs this. Therefore, you'll need to have the extension installed on your system and accessible in the lib path. On Ubuntu, it can be installed with the following command:
+```
+sudo apt-get install libsqlite3-mod-spatialite
+```
