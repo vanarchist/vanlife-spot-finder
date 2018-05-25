@@ -22,4 +22,9 @@ Imports:
     rvest,
     jsonlite,
     ggmap,
-    httr
+    httr,
+    sp,
+    dismo,
+    raster,
+    maptools,
+    rgdal
