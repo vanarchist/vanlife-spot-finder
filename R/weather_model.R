@@ -8,23 +8,24 @@ library(maptools)
 library(rgdal)
 
 # Calculate Thiessen polygons from US temperature normals data
-generate_weather_model <-function(){
-  # import temperature normals data from files
-  max_temp_normals <- get_combined_data_max()
+generate_weather_model <-function(max_normals, min_normals){
+  # merge min and max normals as locations are the same
+  temp_normals <- left_join(max_normals, min_normals[1:13], by = c("id"="id"),
+                            suffix= c(".max", ".min"))
 
   # get only US weather station data
-  us_max_temp_normals <- max_temp_normals[max_temp_normals$state
+  us_temp_normals <- temp_normals[temp_normals$state
                                           %in% state.abb,]
-  us_max_temp_normals <- us_max_temp_normals[startsWith(us_max_temp_normals$id,
+  us_temp_normals <- us_temp_normals[startsWith(us_temp_normals$id,
                                                         "US"),]
 
   # load simple world map data for clipping polgons
   data("wrld_simpl", package="maptools")
 
   # prepare normals data for prximity polygon calculation and clipping
-  dsp <- SpatialPoints(us_max_temp_normals[,15:14], proj4string=CRS(
+  dsp <- SpatialPoints(us_temp_normals[,15:14], proj4string=CRS(
                                                     proj4string(wrld_simpl)))
-  dsp <- SpatialPointsDataFrame(dsp, us_max_temp_normals)
+  dsp <- SpatialPointsDataFrame(dsp, us_temp_normals)
 
   # get only US borders for clipping
   us <- wrld_simpl[wrld_simpl$ISO3 == "USA",]
@@ -39,7 +40,6 @@ generate_weather_model <-function(){
 # Save with shapefile as we need to write a SpatialDataFrame
 save_weather_model <- function(model){
   shapefile(model, file_path("weather_model.Rdata"), overwrite=TRUE)
-  #save(model,file=file_path("weather_model.Rdata"))
 }
 
 # Load with shapefile as we need to read a SpatialDataFrame
@@ -58,4 +58,30 @@ file_path <- function(filename){
                       "data/", filename)
   }
   path
+}
+
+# Combine min and max temp normals into single SpatialDataFrame, generate
+# model, and save
+combine_min_max_temps <- function(){
+  max_temp_normals <- get_combined_data_max()
+  min_temp_normals <- get_combined_data_min()
+  normals_model <- generate_weather_model(max_temp_normals, min_temp_normals)
+  save_weather_model(normals_model)
+}
+
+# Given input month (1-12) and max and min temps
+# return SpatialDataFrame with polygons and temp data
+filter_month_temp_data <- function(normals_model, month_int, max_temp, min_temp){
+  # offset into dataframe for month columns
+  max_month_idx <- month_int+1
+  min_month_idx <- month_int+22
+
+  filtered <- normals_model[(normals_model@data[, max_month_idx] <= max_temp &
+                             normals_model@data[, min_month_idx] >= min_temp),]
+}
+
+# Get temperature labels for leaflet polygons
+filter_month_temp_labels <- function(df, month_int){
+  labels <- as.character(paste0("Max: ", df@data[,month_int+1],
+                                "  Min: ", df@data[,month_int+22]))
 }

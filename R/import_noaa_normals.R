@@ -92,9 +92,9 @@ get_combined_data_min <- function(){
 }
 
 # get precipitation temp normals combined with station information
-get_combined_data_min <- function(){
+get_combined_data_prec <- function(){
   stations <- read_noaa_stations_file("allstations.txt")
-  tmin <- read_noaa_normals_file("ly-prcp-normal.txt")
-  tmin <- process_noaa_prec_normals_data(tmin)
-  tmin_combined <- left_join(tmin, stations, by = c("id"="id"))
+  prec <- read_noaa_normals_file("mly-prcp-normal.txt")
+  prec <- process_noaa_prec_normals_data(prec)
+  prec_combined <- left_join(prec, stations, by = c("id"="id"))
 }
