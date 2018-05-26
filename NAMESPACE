@@ -1,3 +1,3 @@
-import(DBI, geosphere, matrixStats)
+import(DBI, geosphere, matrixStats, rgdal, dismo, raster, maptools, sp)
 
 exportPattern("^[[:alpha:]]+")
