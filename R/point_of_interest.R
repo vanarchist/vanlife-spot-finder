@@ -23,7 +23,8 @@ point_of_interest <- function(){
   obj$db_con <- dbConnect(RSQLite::SQLite(),
                           dbname = db_path)
   # linux only for now, need to have mod_spatialite.so in lib path
-  dbSendQuery(obj$db_con, "SELECT load_extension(\"mod_spatialite.so\")")
+  # TODO: disable mod_spatialite for now as not using and want to use shinyapps.io
+  #dbSendQuery(obj$db_con, "SELECT load_extension(\"mod_spatialite.so\")")
   class(obj) <- "point_of_interest"
   obj
 }
