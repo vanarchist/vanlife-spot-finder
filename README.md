@@ -1,6 +1,6 @@
 # Vanlife Spot Finder
 
-![Screenshot](https://i.imgur.com/SeV2dgU.jpg)
+![Screenshot](https://i.imgur.com/LOjjbZ8.jpg)
 
 Vanlife Spot Finder is designed to help people living in vehicles find good free spots to camp. Currently, it is focused on the United States but could eventually support other countries.
 
