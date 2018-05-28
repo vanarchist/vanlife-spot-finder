@@ -7,7 +7,6 @@
 #
 
 library(shiny)
-library(shinyBS)
 library(leaflet)
 library(vanlife)
 
@@ -21,20 +20,29 @@ ui <- bootstrapPage(
   absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
     draggable = TRUE, top = 5, left = "auto", right = 5,
     bottom = "auto", width = 330, height = "auto",
-    HTML('<button data-toggle="collapse" data-target="#demo" type="button" class="btn btn-link"><span class="glyphicon glyphicon-minus"></span></button>'),
+    HTML(paste0('<button data-toggle="collapse" data-target="#demo" ',
+                'type="button" class="btn btn-link"><span class="glyphicon ',
+                'glyphicon-minus"></span></button>')),
     tags$div(id = 'demo',  class="collapse in",
     tabsetPanel(
       tabPanel("Mode", fluid = FALSE,
         selectInput("select", label = "Mode:",
-          choices = list("Reported Spot")),
-        checkboxGroupInput("sources", "Data Sources:",
-                           c("freecampsites.net" = "fc"),
-                           selected = "fc"),
-        selectInput("variable", "Point Of Interest:",
-                    list("Gyms (shower/bathroom)" =
-                    c( "Anytime Fitness", ""))),
-        sliderInput("range", "Distance from point of interest (miles)",
-                    1, 40, value = 10, step = 1)
+          choices = list("Reported Spot", "Map")),
+        conditionalPanel(
+          condition = 'input.select == "Reported Spot"',
+          checkboxGroupInput("sources", "Data Sources:",
+                              c("freecampsites.net" = "fc"),
+                              selected = "fc"),
+          selectInput("variable", "Point Of Interest:",
+                      list("Gyms (shower/bathroom)" =
+                      c( "Anytime Fitness", ""))),
+          sliderInput("range", "Distance from point of interest (miles)",
+                      1, 40, value = 10, step = 1)
+        ),
+        conditionalPanel(
+          condition = 'input.select == "Map"',
+          tags$small("Map is cleared for reduced clutter")
+        )
       ),
       tabPanel("Weather", fluid = FALSE,
         checkboxInput("enable_weather", "Enable", FALSE),
@@ -86,7 +94,7 @@ server <- function(input, output, session) {
                                                     input$min_temp)
   })
 
-  # Draw map
+  # Draw map with defaults for Reported Spot Mode
   output$map <- renderLeaflet({
 
     leaflet() %>%
@@ -99,6 +107,32 @@ server <- function(input, output, session) {
                        lat = filtered_freecampsites$latitude,
                        popup = filtered_freecampsites$title, color = "red",
                        radius = 6, group = "freecampsites")
+  })
+
+  # Mode control logic for map
+  observe({
+    proxy <- leafletProxy("map")
+    if(input$select == "Map"){
+      proxy %>%
+        clearGroup("gyms") %>%
+        clearGroup("freecampsites")
+    }
+    else if (input$select == "Reported Spot"){
+      proxy %>%
+        clearGroup("gyms") %>%
+        clearGroup("freecampsites") %>%
+        addCircleMarkers(lng = anytime_gyms$lon, lat = anytime_gyms$lat,
+                         popup = anytime_gyms$title, color = "blue",
+                         radius = 6, group = "gyms") %>%
+        addCircleMarkers(data = f_freecampsites(),
+                         lng = ~longitude,
+                         lat = ~latitude,
+                         popup = ~title, color = "red",
+                         radius = 6, group = "freecampsites")
+    }
+    else{
+      stop("Invalid mode")
+    }
   })
 
   # Update weather normals when user enables/disables or changes parameters
