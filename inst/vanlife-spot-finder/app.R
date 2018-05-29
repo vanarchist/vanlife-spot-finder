@@ -46,6 +46,7 @@ ui <- bootstrapPage(
       ),
       tabPanel("Weather", fluid = FALSE,
         checkboxInput("enable_weather", "Enable", FALSE),
+        textOutput("loading"),
         sliderInput("month", "Month",
                     1, 12, value = 6, step = 1),
         sliderInput("max_temp", "Maximum Temperature (deg F)",
@@ -61,22 +62,28 @@ ui <- bootstrapPage(
 # Server logic
 server <- function(input, output, session) {
 
-  poi_mgr <- point_of_interest()
+  # Add progress bar to give user feedback on startup loading
+  withProgress(message = 'Loading Data', value = 0, {
+    n <- 3
+    incProgress(1/n, detail = "Loading Anytime Fitness Data")
+    poi_mgr <- point_of_interest()
+    anytime_gyms <- na.omit(get_points_all(
+      poi_mgr, anytime_fitness_type_id()))
 
-  anytime_gyms <- na.omit(get_points_all(
-                  poi_mgr, anytime_fitness_type_id()))
+    incProgress(1/n, detail = "Loading Freecampsites.net Data")
+    # Perform default filtering of campsites within 10 miles of a gym.
+    filtered_freecampsites <- get_points_within_distance_by_types(poi_mgr,
+                                                    10,
+                                                    anytime_fitness_type_id(),
+                                                    free_campsite_type_id())
 
-  # Perform default filtering of campsites within 10 miles of a gym.
-  filtered_freecampsites <- get_points_within_distance_by_types(poi_mgr,
-                            10,
-                            anytime_fitness_type_id(),
-                            free_campsite_type_id())
+    incProgress(1/n, detail = "Loading Weather Data")
+    # Load weather normals
+    normals_model <- load_weather_model()
 
-  # Load weather normals
-  normals_model <- load_weather_model()
-
-  # Perform default filtering of temperature normals
-  filtered_temp_normals <- filter_month_temp_data(normals_model, 6, 65, 38)
+    # Perform default filtering of temperature normals
+    filtered_temp_normals <- filter_month_temp_data(normals_model, 6, 65, 38)
+  })
 
   # Filter freecampsites sites when user adjusts control
   f_freecampsites <- reactive({
@@ -96,8 +103,7 @@ server <- function(input, output, session) {
 
   # Draw map with defaults for Reported Spot Mode
   output$map <- renderLeaflet({
-
-    leaflet() %>%
+      leaflet() %>%
       addTiles() %>%  # Add default OpenStreetMap map tiles
       setView(lng= -122.3, lat = 47.6, zoom = 8) %>%
       addCircleMarkers(lng = anytime_gyms$lon, lat = anytime_gyms$lat,
@@ -146,6 +152,7 @@ server <- function(input, output, session) {
         bringToFront = FALSE),
         label = filter_month_temp_labels(f_temp_normals(), input$month),
         group = "normals")
+        incProgress(1, detail = "Loading Weather Polygons")
     }
   })
 
