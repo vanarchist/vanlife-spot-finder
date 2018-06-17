@@ -9,9 +9,11 @@
 library(shiny)
 library(leaflet)
 library(vanlife)
+library(shinyjs)
 
 # UI definition
 ui <- bootstrapPage(
+  useShinyjs(),
   tags$head(
     includeCSS("www/style.css")
   ),
@@ -53,6 +55,13 @@ ui <- bootstrapPage(
                     40, 90, value = 65, step = 1),
         sliderInput("min_temp", "Minimum Temperature (deg F)",
                     32, 60, value = 38, step = 1)
+        ),
+      tabPanel("Boundary", fluid = FALSE,
+        checkboxInput("enable_boundary", "Enable", FALSE),
+        disabled(checkboxGroupInput("boundaries", "Boundary Types:",
+                c("National Forest" = "nf"),
+                selected = "nf")),
+        actionButton("search", "Search Area")
         )
       )
     )
@@ -99,6 +108,34 @@ server <- function(input, output, session) {
                                                     input$month,
                                                     input$max_temp,
                                                     input$min_temp)
+  })
+
+  # Search button pressed
+  observeEvent(input$search, {
+    withProgress(message = 'Loading', value = 0, {
+      incProgress(1/3, detail = "Downloading Boundaries")
+      bounding <- input$map_bounds
+      bounds <- c(as.numeric(bounding$west), as.numeric(bounding$south),
+                  as.numeric(bounding$east), as.numeric(bounding$north))
+      boundaries <- get_national_forest_boundaries_online(bounds)
+      incProgress(2/3, detail = "Downloading Roads")
+      roads <- get_national_forest_roads_online(bounds)
+
+      incProgress(3/3, detail = "Rendering")
+      proxy <- leafletProxy("map")
+      proxy %>% clearGroup("boundaries")
+      proxy %>% addPolygons(weight = 1, color = "green",
+                            highlight = highlightOptions(
+                            weight = 5, color= "green",
+                            dashArray = "", fillOpacity = 0.7,
+                            fillColor = "green",
+                            bringToFront = FALSE),
+                            data = boundaries,
+                            group = "boundaries") %>%
+                addPolylines(weight = 2, color = "red", data = roads,
+                             group = "boundaries", opacity = 1)
+
+    })
   })
 
   # Draw map with defaults for Reported Spot Mode
